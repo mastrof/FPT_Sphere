@@ -1199,7 +1199,7 @@ version = "0.2.0"
 
 [[deps.MicrobeAgents]]
 deps = ["Agents", "Autocorrelations", "CellListMap", "DataFrames", "Distributions", "GeometryBasics", "LinearAlgebra", "MeanSquaredDisplacement", "OffsetArrays", "Quaternions", "Random", "StaticArrays"]
-git-tree-sha1 = "0dfb56029dc33ae48f0f1ab878de0e94366fa521"
+git-tree-sha1 = "57a2630bc7da34d4a4b2f73f4e2ebf70e2176869"
 repo-rev = "main"
 repo-url = "https://github.com/mastrof/MicrobeAgents.jl.git"
 uuid = "b17a4bac-8667-4a2d-84f7-1883ae0b8dbb"
