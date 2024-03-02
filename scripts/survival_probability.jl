@@ -49,14 +49,13 @@ end
     parameters = Dict(
         :Δt => Δt,
         :L => 1000.0,
-        :R => 100.0,
-        #:C₁ => [0.0, 0.5, 1.0, 2.0, 5.0, 10.0],
-        :C₁ => [0.0, 1.0, 2.0],
+        :R => [5.0, 25.0, 50.0],
+        :C₁ => [0.0, 0.1, 0.5, 1.0],
         :U => [15.0, 30.0, 60.0]
     )
 end
 _, mdf = paramscan(parameters, initialize; mdata, n=stop, parallel=true)
-CSV.write(datadir("sims"), "survival.csv")
+CSV.write(datadir("sims", "survival.csv"), mdf)
 
 ##
 fig = Figure(; size=(800,600), fontsize=32)
@@ -93,7 +92,7 @@ makeax(i,j) = Axis(fig[i,j];
         yscale=log10,
         xlabel="time (s)", ylabel="survival probability",
     )
-gdf_U = groupby(mdf, :U)
+gdf_U = groupby(mdf[mdf.R.==25,:], :U)
 linecolors = cgrad(:viridis, length(parameters[:C₁]); categorical=true)
 for (i,h) in enumerate(gdf_U)
     ax = makeax(1,i)
@@ -112,7 +111,7 @@ for (i,h) in enumerate(gdf_U)
             label="C₁ = $C μM; τ = $(round(Int, τ/60)) min"
         )
     end
-    ylims!(ax, (1e-3, 1.01))
+    #ylims!(ax, (1e-3, 1.01))
     axislegend(ax; position=:lb, patchsize=(30,20))
 end
 fig
