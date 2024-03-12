@@ -7,7 +7,6 @@ using Distributed
 end
 using CSV
 using LsqFit
-using GLMakie
 
 ##
 @everywhere function initialize(;
