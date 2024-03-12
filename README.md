@@ -21,6 +21,8 @@ To (locally) reproduce this project, do the following:
 
 This will install all necessary packages for you to be able to run the scripts and
 everything should work out of the box, including correctly finding local paths.
+In the path of the project, you will need to create a `data` directory, with the
+two subdirectories `sims` (for raw simulation data) and `proc` (for processed data).
 
 You may notice that most scripts start with the commands:
 ```julia
