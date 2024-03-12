@@ -11,7 +11,8 @@ using LsqFit
 ##
 @everywhere function initialize(;
     N = 2500,
-    Φ = 1 - 1e-4, # free volume fraction -> (1-Φ)L^3 = V
+    # Φ = 1 - 1e-4, # free volume fraction -> (1-Φ)L^3 = V // for later
+    L = 1000.0,
     R = 50.0,
     C₀ = 0.0,
     C₁ = 1.0,
@@ -20,9 +21,9 @@ using LsqFit
 )
     D = 3
     periodic = true
-    # define L by fixing excluded volume
-    V = 4π/3 * R^3 # μm^3
-    L = (V/(1-Φ))^(1/3) # μm
+    # define L by fixing excluded volume // for later
+    # V = 4π/3 * R^3 # μm^3
+    # L = (V/(1-Φ))^(1/3) # μm
     space = ContinuousSpace(ntuple(_ -> L, D); periodic)
     properties = Dict(
         :chemoattractant => DiffusiveField(C₀, C₁, R, spacesize(space) ./ 2),
@@ -50,7 +51,8 @@ end
     stop(model, s) = s >= nsteps || nagents(model) <= 1 
     parameters = Dict(
         :Δt => [Δt],
-        :Φ => [1-1e-4],
+        #:Φ => [1-1e-4],
+        :L => [1000.0],
         :R => [5.0, 25.0, 50.0],
         :C₁ => [0.0, 0.1, 0.5, 1.0],
         :U => [15.0, 30.0, 60.0]
