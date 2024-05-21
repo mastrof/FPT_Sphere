@@ -18,6 +18,7 @@ using LsqFit
     C1 = 1.0,
     U = 20.0,
     Δt = 0.05,
+    kwargs...
 )
     D = 3
     periodic = true
@@ -42,22 +43,31 @@ using LsqFit
     model
 end
 
-##
-@everywhere begin
+@everywhere when_model(model, s) = (s % 1200 == 0)
+@everywhere stop(model, s) = (s >= nsteps || nagents(model) <= 1)
+
+@everywhere function production_run(config)
+    model = initialize(; config...)
+    dt = model.timestep
+    T = 24*60*60 # s
+    nsteps = round(Int, T/dt)
     mdata = [nagents]
-    Δt = 0.05 # s
-    T = 2*60*60 # s
-    nsteps = round(Int, T/Δt)
-    when_model(model, s) = (s % 200 == 0) # every 10 seconds
-    stop(model, s) = s >= nsteps || nagents(model) <= 1 
-    parameters = Dict(
-        :Δt => [Δt],
-        #:Φ => [1-1e-4],
-        :L => [400.0],
-        :R => [0.5, 1.0, 2.0, 5.0],
-        :C1 => [0.0, 0.1, 0.5],
-        :U => [15.0, 30.0, 60.0]
-    )
+    _, mdf = run!(model, stop; mdata, when_model)
+    fout = Datadir("sims", savename("survival", config, "csv"))
+    CSV.write(fout, mdf)
 end
+
 _, mdf = paramscan(parameters, initialize; mdata, n=stop, parallel=true)
 CSV.write(Datadir("sims", "survival.csv"), mdf)
+
+L = [500.0]
+R = [0.5, 1.0, 2.0, 3.0, 4.0, 5.0]
+C1 = [0.0, 0.1, 0.25, 0.5, 1.0]
+U = [15.0, 25.0, 40.0, 60.0]
+num_replicates = 10
+rep = collect(1:num_replicates)
+
+allparams = @dict L R C1 U rep
+dicts = dict_list(allparams)
+
+pmap(production_run, dicts)
