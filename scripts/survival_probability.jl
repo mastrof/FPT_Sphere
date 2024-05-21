@@ -46,7 +46,7 @@ end
 @everywhere begin
     mdata = [nagents]
     Δt = 0.05 # s
-    T = 2*1*60 # s
+    T = 2*60*60 # s
     nsteps = round(Int, T/Δt)
     when_model(model, s) = (s % 200 == 0) # every 10 seconds
     stop(model, s) = s >= nsteps || nagents(model) <= 1 
@@ -60,4 +60,4 @@ end
     )
 end
 _, mdf = paramscan(parameters, initialize; mdata, n=stop, parallel=true)
-CSV.write(datadir("sims", "survival.csv"), mdf)
+CSV.write(Datadir("sims", "survival.csv"), mdf)
