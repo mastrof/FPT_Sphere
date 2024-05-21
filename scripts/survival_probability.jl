@@ -1,7 +1,7 @@
 using Distributed
 @everywhere using DrWatson
+@everywhere @quickactivate :FPT_Sphere
 @everywhere begin
-    @quickactivate :FPT_Sphere
     using Agents, MicrobeAgents
     using DataFrames
 end
@@ -14,10 +14,10 @@ using LsqFit
     # Φ = 1 - 1e-4, # free volume fraction -> (1-Φ)L^3 = V // for later
     L = 1000.0,
     R = 50.0,
-    C₀ = 0.0,
-    C₁ = 1.0,
+    C0 = 0.0,
+    C1 = 1.0,
     U = 20.0,
-    Δt = 0.1,
+    Δt = 0.05,
 )
     D = 3
     periodic = true
@@ -26,14 +26,14 @@ using LsqFit
     # L = (V/(1-Φ))^(1/3) # μm
     space = ContinuousSpace(ntuple(_ -> L, D); periodic)
     properties = Dict(
-        :chemoattractant => DiffusiveField(C₀, C₁, R, spacesize(space) ./ 2),
+        :chemoattractant => DiffusiveField(C0, C1, R, spacesize(space) ./ 2),
         :last_position => [zero(SVector{D,Float64}) for _ in 1:N]
     )
-    model = StandardABM(BrownBerg{D}, space, Δt;
+    model = StandardABM(SonMenolascina{D,4}, space, Δt;
         properties, container=Dict,
         model_step! = encounter!,
     )
-    motility = RunTumble(; speed=[U])
+    motility = RunReverseFlick(1.0, [U], 1.0, [U])
     for i in 1:N
         add_agent!(model; motility)
         # after adding agent to model, save its assigned position
@@ -45,16 +45,17 @@ end
 ##
 @everywhere begin
     mdata = [nagents]
-    Δt = 0.1 # s
-    T = 2*60*60 # s
+    Δt = 0.05 # s
+    T = 2*1*60 # s
     nsteps = round(Int, T/Δt)
+    when_model(model, s) = (s % 200 == 0) # every 10 seconds
     stop(model, s) = s >= nsteps || nagents(model) <= 1 
     parameters = Dict(
         :Δt => [Δt],
         #:Φ => [1-1e-4],
-        :L => [1000.0],
-        :R => [5.0, 25.0, 50.0],
-        :C₁ => [0.0, 0.1, 0.5, 1.0],
+        :L => [400.0],
+        :R => [0.5, 1.0, 2.0, 5.0],
+        :C1 => [0.0, 0.1, 0.5],
         :U => [15.0, 30.0, 60.0]
     )
 end
